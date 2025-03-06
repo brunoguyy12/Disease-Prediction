@@ -314,14 +314,21 @@ export default function PredictPage() {
                   onClick={() => {
                     handleInformation();
                   }}
-                  disabled={genLoading}
-                  className="mt-4 w-full"
+                  disabled={
+                    genLoading ||
+                    (genAiError && genAiError.length > 0) ||
+                    prediction.length === 0 ||
+                    message.length > 0
+                  }
+                  className="mt-4 w-full disabled:bg-accent disabled:text-accent-foreground"
                 >
                   {genLoading ? (
                     <>
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                       Loading Information...
                     </>
+                  ) : message ? (
+                    "Information Generated"
                   ) : (
                     "Describe the Disease"
                   )}
@@ -329,7 +336,7 @@ export default function PredictPage() {
 
                 {genLoading && (
                   <div className="mt-4">
-                    <Skeleton className="h-[200px] w-full" />
+                    <Skeleton className="h-[150px] w-full" />
                   </div>
                 )}
                 {genAiError && (

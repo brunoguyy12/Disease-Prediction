@@ -1,0 +1,23 @@
+. Introduction 
+
+. Why it is important to solve the problem 
+
+. Define briefly the problem Statement
+
+. Everything that we gathered in the previous papers
+
+. Comparison Table 
+
+. Datasets collected and preferable one
+
+. Different Machine Learning ALgorithms and Deep Learning selected
+
+. Different steps for Implementation of Model : 
+   1. Data Collection 
+   2. Preprocessing 
+   3. Performing EDA ( Exploratly Data Analysis) 
+   4. Training Model 
+   5. Testing Model 
+   6. Deploy Model
+
+. Optimization of the Model

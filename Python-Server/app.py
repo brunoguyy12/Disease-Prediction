@@ -167,13 +167,9 @@ df = pd.read_csv("Training.csv")
 # l1 = df.columns.drop("prognosis").tolist()  # Symptoms from columns
 # disease = df["prognosis"].str.strip().unique().tolist()  # Unique cleaned diseases
 
-# print("Columns:", df.columns.tolist())
 df["prognosis"] = df["prognosis"].str.strip()
 df.replace({"prognosis": mapping}, inplace=True)
 
-# print("Unique values in prognosis after replacement:", df["prognosis"].unique())
-# print("Data type of prognosis:", df["prognosis"].dtype)
-# print("Data type of symptoms:", df[l1].dtypes)
 X = df[l1]
 y = df["prognosis"]
 model = RandomForestClassifier()
@@ -189,11 +185,11 @@ model.fit(X, np.ravel(y))
 def predict():
     data = request.get_json()
     symptoms = data.get("symptoms", [])
-    print(symptoms)
+    # print(symptoms)
 
     # Convert symptoms to feature vector
     input_vector = [0] * len(l1)
-    print(input_vector)
+    # print(input_vector)
     for symptom in symptoms:
         if symptom in l1:
             input_vector[l1.index(symptom)] = 1
@@ -221,6 +217,24 @@ def stats():
     disease_counts = df["prognosis"].value_counts().to_dict()
     disease_names = {i: disease[i] for i in disease_counts.keys()}
     return jsonify({disease_names[k]: v for k, v in disease_counts.items()})
+
+
+@app.route("/symptom_frequency", methods=["GET"])
+def symptom_frequency():
+    # Calculate the frequency of each symptom by summing the binary values
+    symptom_freq = df[l1].sum().to_dict()
+    return jsonify(symptom_freq)
+
+
+@app.route("/symptom_disease_relations", methods=["GET"])
+def symptom_disease_relations():
+    relations = {}
+    for symptom in l1:
+        # Find diseases where the symptom is present (value = 1)
+        diseases_with_symptom = df[df[symptom] == 1]["prognosis"].unique()
+        diseases_names = [disease[i] for i in diseases_with_symptom]
+        relations[symptom] = {"diseases": diseases_names, "count": len(diseases_names)}
+    return jsonify(relations)
 
 
 if __name__ == "__main__":

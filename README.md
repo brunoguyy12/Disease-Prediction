@@ -171,6 +171,5 @@ This project is licensed under the MIT License. See the LICENSE file in the repo
 
 ## Additional Notes
 
-- **Screenshot**: The homepage screenshot is linked as `./assets/homepage.png`. Store your screenshot in an assets folder in your repository and adjust the path if needed (e.g., `./screenshots/home.png`).
-- **Credits**: Special thanks to anyone who contributed ideas, code, or feedback (add names if applicable).
+- **Credits**: Special thanks to anyone who contributed ideas, code, or feedback.
 - **Related Resources**: For more information, explore related tools like Hugging Face or scikit-learn documentation.
