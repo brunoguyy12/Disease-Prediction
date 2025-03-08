@@ -1,5 +1,5 @@
 from flask import Flask, request, jsonify
-from flask_cors import CORS  # Import CORS
+from flask_cors import CORS
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
@@ -7,12 +7,48 @@ import pickle
 
 app = Flask(__name__)
 
-# Enable CORS for the app, allowing requests from http://localhost:3000
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})
 
 
-# Symptom and disease lists (from your code)
+# Symptom and disease lists
 l1 = [
+    "itching",
+    "skin_rash",
+    "nodal_skin_eruptions",
+    "continuous_sneezing",
+    "shivering",
+    "chills",
+    "joint_pain",
+    "stomach_pain",
+    "acidity",
+    "ulcers_on_tongue",
+    "muscle_wasting",
+    "vomiting",
+    "burning_micturition",
+    "spotting_ urination",
+    "fatigue",
+    "weight_gain",
+    "anxiety",
+    "cold_hands_and_feets",
+    "mood_swings",
+    "weight_loss",
+    "restlessness",
+    "lethargy",
+    "patches_in_throat",
+    "irregular_sugar_level",
+    "cough",
+    "high_fever",
+    "sunken_eyes",
+    "breathlessness",
+    "sweating",
+    "dehydration",
+    "indigestion",
+    "headache",
+    "yellowish_skin",
+    "dark_urine",
+    "nausea",
+    "loss_of_appetite",
+    "pain_behind_the_eyes",
     "back_pain",
     "constipation",
     "abdominal_pain",
@@ -93,7 +129,7 @@ l1 = [
     "stomach_bleeding",
     "distention_of_abdomen",
     "history_of_alcohol_consumption",
-    "fluid_overload",
+    "fluid_overload.1",
     "blood_in_sputum",
     "prominent_veins_on_calf",
     "palpitations",
@@ -154,18 +190,13 @@ disease = [
     "Impetigo",
 ]
 
-
 # Clean the disease list
-disease = [d.strip() for d in disease]  # Remove leading/trailing spaces
+disease = [d.strip() for d in disease]
 mapping = {d: i for i, d in enumerate(disease)}
 
-# Load and train the model (or load a pre-trained one)
+# Load and train the model
 df = pd.read_csv("Training.csv")
 
-# Instead of providing hardcoded symptoms and diseases, we can extract them from the dataset
-# # Option 2: Dynamically extract symptoms and diseases
-# l1 = df.columns.drop("prognosis").tolist()  # Symptoms from columns
-# disease = df["prognosis"].str.strip().unique().tolist()  # Unique cleaned diseases
 
 df["prognosis"] = df["prognosis"].str.strip()
 df.replace({"prognosis": mapping}, inplace=True)
@@ -175,26 +206,17 @@ y = df["prognosis"]
 model = RandomForestClassifier()
 model.fit(X, np.ravel(y))
 
-# Optionally, save the model to avoid retraining
-# with open('model.pkl', 'wb') as f:
-#     pickle.dump(model, f)
-# Load with: model = pickle.load(open('model.pkl', 'rb'))
-
 
 @app.route("/predict", methods=["POST"])
 def predict():
     data = request.get_json()
     symptoms = data.get("symptoms", [])
-    # print(symptoms)
 
-    # Convert symptoms to feature vector
     input_vector = [0] * len(l1)
-    # print(input_vector)
     for symptom in symptoms:
         if symptom in l1:
             input_vector[l1.index(symptom)] = 1
 
-    # Make prediction
     prediction = model.predict([input_vector])[0]
     predicted_disease = disease[prediction]
 
@@ -213,7 +235,6 @@ def index():
 
 @app.route("/stats", methods=["GET"])
 def stats():
-    # Example: Calculate from Training.csv or hardcode for now
     disease_counts = df["prognosis"].value_counts().to_dict()
     disease_names = {i: disease[i] for i in disease_counts.keys()}
     return jsonify({disease_names[k]: v for k, v in disease_counts.items()})
@@ -221,7 +242,6 @@ def stats():
 
 @app.route("/symptom_frequency", methods=["GET"])
 def symptom_frequency():
-    # Calculate the frequency of each symptom by summing the binary values
     symptom_freq = df[l1].sum().to_dict()
     return jsonify(symptom_freq)
 
@@ -230,7 +250,6 @@ def symptom_frequency():
 def symptom_disease_relations():
     relations = {}
     for symptom in l1:
-        # Find diseases where the symptom is present (value = 1)
         diseases_with_symptom = df[df[symptom] == 1]["prognosis"].unique()
         diseases_names = [disease[i] for i in diseases_with_symptom]
         relations[symptom] = {"diseases": diseases_names, "count": len(diseases_names)}
