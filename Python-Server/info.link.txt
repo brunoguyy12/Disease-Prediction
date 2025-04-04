@@ -1,0 +1,14 @@
+https://grok.com/chat/75a7bcef-8ea0-43de-b028-6ef8b0c74963
+
+
+
+I would like you to help me with my Machine Learning model ! It is a project about disease prediction using Medical Data. 
+I have created a model here with for now was predicting with only one algorithm ! I would like to show the accuracy and all for that algorithm !!! Plus I would like to add more algorithm ... 
+
+
+Check the code I got in the clean_code !! Can you add more and increase the accuracy please !! 
+
+
+One thing !! Don't use TKinter or anything for Visualization ! I have created a Frontend website which will work with the model by querying the api !! 
+
+Just show me how I would implement the other models and increase the accuracy !  
