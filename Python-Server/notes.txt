@@ -21,3 +21,8 @@
    6. Deploy Model
 
 . Optimization of the Model
+
+
+
+Here is the best Kaggle Dataset to use in the future !!
+https://www.kaggle.com/datasets/dhivyeshrk/diseases-and-symptoms-dataset

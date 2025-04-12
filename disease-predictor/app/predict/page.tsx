@@ -1,7 +1,7 @@
 "use client";
 
 // import { OpenAI } from "openai";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -55,6 +55,12 @@ export default function PredictPage() {
   const [message, setMessage] = useState<string>("");
   const [genLoading, setGenLoading] = useState<boolean>(false);
   const [genAiError, setGenAiError] = useState<string | null>(null);
+  const [probabilities, setProbabilities] = useState<string[]>([]);
+  const [accuracy, setAccuracy] = useState<number>(0);
+
+  const leftColumnRef = useRef<HTMLDivElement>(null);
+  const rightColumnRef = useRef<HTMLDivElement>(null);
+  const [isSticky, setIsSticky] = useState(true);
 
   // Format symptom for display
   const formatSymptom = (symptom: string) => {
@@ -74,6 +80,7 @@ export default function PredictPage() {
         if (!res.ok) throw new Error("Failed to fetch symptoms");
         const data = await res.json();
         setSymptomsList(data.symptoms);
+        setAccuracy(data.accuracy);
       } catch (err) {
         console.error("Error fetching symptoms:", err);
         setError(
@@ -85,6 +92,32 @@ export default function PredictPage() {
     };
 
     fetchSymptoms();
+  }, []);
+
+  useEffect(() => {
+    const leftColumn = leftColumnRef.current;
+    const rightColumn = rightColumnRef.current;
+
+    if (!leftColumn || !rightColumn) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setIsSticky(true);
+        } else {
+          const leftRect = leftColumn.getBoundingClientRect();
+          const rightRect = rightColumn.getBoundingClientRect();
+          setIsSticky(rightRect.bottom < leftRect.bottom);
+        }
+      },
+      {
+        threshold: [0, 1],
+        rootMargin: "0px 0px -100% 0px",
+      }
+    );
+
+    observer.observe(leftColumn);
+    return () => observer.disconnect();
   }, []);
 
   // Handle symptom selection
@@ -125,6 +158,7 @@ export default function PredictPage() {
 
       const data = await response.json();
       setPrediction(data.disease);
+      setProbabilities(data.probabilities);
     } catch (error) {
       console.error("Prediction error:", error);
       setError("Failed to get prediction. Please try again later.");
@@ -157,8 +191,8 @@ export default function PredictPage() {
   };
 
   return (
-    <div className="container mx-auto py-10 px-4">
-      <div className="max-w-3xl mx-auto space-y-8">
+    <div className="container flex mx-auto py-10 px-4">
+      <div ref={leftColumnRef} className="max-w-3xl mx-auto space-y-8 w-full">
         <div className="text-center space-y-2">
           <h1 className="text-3xl font-bold">Disease Prediction</h1>
           <p className="text-muted-foreground">
@@ -310,6 +344,14 @@ export default function PredictPage() {
                   This prediction is based on the symptoms you selected and our
                   machine learning model.
                 </p>
+                <div className="text-sm text-muted-foreground mt-4">
+                  <span className="font-bold">Three Possible diseases</span>:
+                  {probabilities.map((prob, index) => (
+                    <div key={index}>
+                      {index + 1}. {prob}
+                    </div>
+                  ))}
+                </div>
                 <Button
                   onClick={() => {
                     handleInformation();
@@ -395,6 +437,24 @@ export default function PredictPage() {
             <Skeleton className="h-[40px] w-full" />
           </div>
         )}
+      </div>
+      <div
+        ref={rightColumnRef}
+        className={`transition-all duration-300 h-fit ease-in-out ${
+          isSticky ? "sticky top-[100px]" : ""
+        }`}
+      >
+        <Card className="hidden md:block bg-primary/5">
+          <CardHeader className="bg-primary/5 ">
+            <CardTitle>Model Accuracy</CardTitle>
+            <CardDescription>
+              The model is trained with an accuracy of {accuracy}%
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="pt-6 text-center">
+            <div className="text-4xl font-bold text-primary">{accuracy}%</div>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
